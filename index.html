@@ -5,14 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Simple To-Do</title>
     <style>
-        /* 모바일 우선 디자인 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #f5f5f7;
+            margin: 0;
+            padding-top: 60px; /* 헤더 높이만큼 여백 */
+            padding-bottom: 50px; /* 푸터 높이만큼 여백 */
             display: flex;
             justify-content: center;
-            padding: 20px;
-            margin: 0;
+        }
+
+        /* --- 헤더 스타일 --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            z-index: 1000;
+        }
+
+        /* --- 푸터 스타일 --- */
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #ffffff;
+            border-top: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #888;
         }
 
         .container {
@@ -20,11 +51,10 @@
             max-width: 400px;
             background: white;
             padding: 25px;
+            margin: 20px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
-
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
 
         .input-group {
             display: flex;
@@ -38,7 +68,7 @@
             border: 1px solid #ddd;
             border-radius: 10px;
             outline: none;
-            font-size: 16px; /* 모바일 줌 방지 */
+            font-size: 16px;
         }
 
         button#add-btn {
@@ -71,67 +101,55 @@
             padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
         }
     </style>
 </head>
 <body>
 
+<header>
+    📅 나의 할 일 목록
+</header>
+
 <div class="container">
-    <h2>오늘의 할 일</h2>
-    
     <div class="input-group">
-        <input type="text" id="todo-input" placeholder="할 일을 입력하세요...">
+        <input type="text" id="todo-input" placeholder="새로운 할 일...">
         <button id="add-btn">추가</button>
     </div>
 
-    <ul id="todo-list">
-        </ul>
+    <ul id="todo-list"></ul>
 </div>
+
+<footer>
+    © 2024 Simple Todo App
+</footer>
 
 <script>
     const input = document.getElementById('todo-input');
     const addBtn = document.getElementById('add-btn');
     const todoList = document.getElementById('todo-list');
 
-    // 1. 페이지 로드 시 저장된 데이터 불러오기
     document.addEventListener('DOMContentLoaded', loadTodos);
-
-    // 2. 추가 버튼 클릭 이벤트
     addBtn.addEventListener('click', addTodo);
-
-    // 엔터키 지원
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') addTodo();
-    });
+    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodo(); });
 
     function addTodo() {
         if (input.value.trim() === '') return;
-
         const todoText = input.value;
         createTodoElement(todoText);
         saveTodo(todoText);
-        
         input.value = '';
     }
 
     function createTodoElement(text) {
         const li = document.createElement('li');
-        li.innerHTML = `
-            <span>${text}</span>
-            <button class="delete-btn">삭제</button>
-        `;
-
-        // 삭제 버튼 기능
+        li.innerHTML = `<span>${text}</span><button class="delete-btn">삭제</button>`;
         li.querySelector('.delete-btn').addEventListener('click', () => {
             li.remove();
             removeTodo(text);
         });
-
         todoList.appendChild(li);
     }
 
-    // 로컬 스토리지 저장 기능 (새로고침해도 유지)
     function saveTodo(todo) {
         let todos = localStorage.getItem('todos') ? JSON.parse(localStorage.getItem('todos')) : [];
         todos.push(todo);
