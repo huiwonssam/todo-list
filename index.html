@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar To-Do</title>
+    <title>Fixed Calendar To-Do</title>
     <style>
         :root {
             --primary-color: #007aff;
+            --today-bg: #e1f0ff;
+            --selected-bg: #007aff;
             --bg-color: #f5f5f7;
         }
 
@@ -21,107 +23,118 @@
             width: 100%; height: 60px; background: white;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; border-bottom: 1px solid #ddd;
-            position: sticky; top: 0; z-index: 10;
         }
 
-        /* 달력 스타일 */
+        /* 달력 영역 */
         .calendar-container {
             width: 90%; max-width: 400px; background: white;
-            margin-top: 20px; border-radius: 15px; padding: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-top: 20px; border-radius: 15px; padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-sizing: border-box;
         }
 
         .calendar-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; font-weight: bold;
+            margin-bottom: 20px; font-weight: bold; font-size: 1.1rem;
         }
 
         .calendar-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr);
-            text-align: center; gap: 5px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7열 고정 */
+            gap: 2px;
+            text-align: center;
         }
 
-        .day-label { font-size: 12px; color: #888; padding-bottom: 5px; }
+        .day-label {
+            font-size: 12px; color: #999;
+            padding-bottom: 10px; font-weight: bold;
+        }
 
         .day {
-            padding: 10px 0; cursor: pointer; border-radius: 8px;
-            font-size: 14px; transition: 0.2s;
+            aspect-ratio: 1 / 1; /* 정사각형 유지 */
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; border-radius: 50%; /* 동그란 선택 효과 */
+            font-size: 14px; color: #333;
+            transition: 0.2s;
         }
 
-        .day:hover { background-color: #eee; }
-        .day.selected { background-color: var(--primary-color) !important; color: white; }
-        .day.today { background-color: #e1f0ff; font-weight: bold; color: var(--primary-color); }
-
-        /* 할 일 목록 스타일 */
-        .todo-container {
-            width: 90%; max-width: 400px; margin: 20px 0;
+        /* 상태별 스타일 */
+        .day.today {
+            background-color: var(--today-bg);
+            color: var(--primary-color);
+            font-weight: bold;
         }
 
-        .current-date-title { margin-bottom: 15px; font-size: 1.1rem; font-weight: bold; color: #333; }
+        .day.selected {
+            background-color: var(--selected-bg) !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
 
+        /* 할 일 영역 */
+        .todo-container { width: 90%; max-width: 400px; margin: 25px 0; }
+        .current-date-title { margin-bottom: 15px; font-size: 1rem; font-weight: bold; color: #555; }
         .input-group { display: flex; gap: 8px; margin-bottom: 15px; }
-
-        input[type="text"] {
-            flex: 1; padding: 12px; border: 1px solid #ddd;
-            border-radius: 10px; outline: none; font-size: 16px;
+        
+        input[type="text"] { 
+            flex: 1; padding: 12px; border: 1px solid #ddd; 
+            border-radius: 12px; font-size: 16px; outline: none;
+            background: white;
         }
 
-        #add-btn {
-            padding: 0 15px; background: var(--primary-color); color: white;
-            border: none; border-radius: 10px; font-weight: bold;
+        #add-btn { 
+            padding: 0 18px; background: var(--primary-color); color: white; 
+            border: none; border-radius: 12px; font-weight: bold; cursor: pointer; 
         }
 
         ul { list-style: none; padding: 0; margin-bottom: 80px; }
-
-        li {
-            background: white; margin-bottom: 8px; padding: 12px 15px;
-            border-radius: 12px; display: flex; justify-content: space-between;
-            align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        li { 
+            background: white; margin-bottom: 10px; padding: 14px; 
+            border-radius: 12px; display: flex; justify-content: space-between; 
+            align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
         }
 
-        .delete-btn {
-            background: #ff3b30; color: white; border: none;
-            padding: 6px 10px; border-radius: 6px; font-size: 12px;
+        .delete-btn { 
+            background: #ff3b30; color: white; border: none; 
+            padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; 
         }
 
-        footer {
-            position: fixed; bottom: 0; width: 100%; height: 50px;
-            background: white; border-top: 1px solid #ddd;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; color: #999;
+        footer { 
+            position: fixed; bottom: 0; width: 100%; height: 50px; 
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
+            border-top: 1px solid #ddd; display: flex; align-items: center; 
+            justify-content: center; font-size: 12px; color: #999; 
         }
     </style>
 </head>
 <body>
 
-<header>📅 캘린더 할 일</header>
+<header>📅 캘린더 To-Do</header>
 
 <div class="calendar-container">
     <div class="calendar-header">
-        <button onclick="changeMonth(-1)">◀</button>
+        <button onclick="changeMonth(-1)" style="border:none; background:none; font-size:20px; cursor:pointer;">&lt;</button>
         <span id="month-display"></span>
-        <button onclick="changeMonth(1)">▶</button>
+        <button onclick="changeMonth(1)" style="border:none; background:none; font-size:20px; cursor:pointer;">&gt;</button>
     </div>
     <div class="calendar-grid" id="calendar-grid">
-        <div class="day-label">일</div><div class="day-label">월</div><div class="day-label">화</div>
-        <div class="day-label">수</div><div class="day-label">목</div><div class="day-label">금</div><div class="day-label">토</div>
-    </div>
+        </div>
 </div>
 
 <div class="todo-container">
-    <div class="current-date-title" id="selected-date-text">날짜를 선택하세요</div>
+    <div class="current-date-title" id="selected-date-text">날짜를 선택해 주세요.</div>
     <div class="input-group">
-        <input type="text" id="todo-input" placeholder="할 일 입력...">
+        <input type="text" id="todo-input" placeholder="새로운 할 일...">
         <button id="add-btn">추가</button>
     </div>
     <ul id="todo-list"></ul>
 </div>
 
-<footer>© 2026 Personal Planner</footer>
+<footer>© 2026 My Daily Planner</footer>
 
 <script>
     let currentViewDate = new Date();
-    let selectedDateStr = ""; // YYYY-MM-DD 형식
+    let selectedDateStr = "";
 
     const monthDisplay = document.getElementById('month-display');
     const calendarGrid = document.getElementById('calendar-grid');
@@ -129,17 +142,30 @@
     const todoList = document.getElementById('todo-list');
     const input = document.getElementById('todo-input');
 
-    function init() {
+    // 1. 초기 실행
+    window.onload = function() {
         const today = new Date();
+        // 오늘 날짜 문자열 미리 설정
+        selectedDateStr = formatDate(today.getFullYear(), today.getMonth(), today.getDate());
         renderCalendar();
-        selectDate(today.getFullYear(), today.getMonth(), today.getDate());
+        updateSelectedUI(today.getFullYear(), today.getMonth(), today.getDate());
+    };
+
+    function formatDate(y, m, d) {
+        return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     }
 
     function renderCalendar() {
-        // 기존 날짜 제거 (요일 라벨 제외)
-        const labels = document.querySelectorAll('.day-label');
         calendarGrid.innerHTML = '';
-        labels.forEach(l => calendarGrid.appendChild(l));
+        
+        // 요일 헤더 생성
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        days.forEach(d => {
+            const div = document.createElement('div');
+            div.className = 'day-label';
+            div.innerText = d;
+            calendarGrid.appendChild(div);
+        });
 
         const year = currentViewDate.getFullYear();
         const month = currentViewDate.getMonth();
@@ -148,24 +174,23 @@
         const firstDay = new Date(year, month, 1).getDay();
         const lastDate = new Date(year, month + 1, 0).getDate();
 
-        // 빈칸 채우기
+        // 빈 칸
         for (let i = 0; i < firstDay; i++) {
-            const empty = document.createElement('div');
-            calendarGrid.appendChild(empty);
+            calendarGrid.appendChild(document.createElement('div'));
         }
 
-        // 날짜 채우기
         const today = new Date();
+        const todayFullStr = formatDate(today.getFullYear(), today.getMonth(), today.getDate());
+
+        // 날짜 채우기
         for (let d = 1; d <= lastDate; d++) {
             const dayEl = document.createElement('div');
             dayEl.className = 'day';
             dayEl.innerText = d;
             
-            if (year === today.getFullYear() && month === today.getMonth() && d === today.getDate()) {
-                dayEl.classList.add('today');
-            }
-
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const dateStr = formatDate(year, month, d);
+            
+            if (dateStr === todayFullStr) dayEl.classList.add('today');
             if (dateStr === selectedDateStr) dayEl.classList.add('selected');
 
             dayEl.onclick = () => selectDate(year, month, d);
@@ -174,10 +199,13 @@
     }
 
     function selectDate(y, m, d) {
-        selectedDateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        selectedDateStr = formatDate(y, m, d);
+        updateSelectedUI(y, m, d);
+        renderCalendar(); // 선택 표시를 위해 다시 그림
+    }
+
+    function updateSelectedUI(y, m, d) {
         selectedDateText.innerText = `${y}년 ${m + 1}월 ${d}일의 할 일`;
-        
-        renderCalendar(); // 선택 표시 업데이트
         loadTodos();
     }
 
@@ -188,9 +216,11 @@
 
     // 할 일 로직
     document.getElementById('add-btn').onclick = () => {
-        if (!input.value.trim()) return;
+        const text = input.value.trim();
+        if (!text) return;
+        
         const todos = getTodos();
-        todos.push(input.value);
+        todos.push(text);
         localStorage.setItem(selectedDateStr, JSON.stringify(todos));
         input.value = '';
         loadTodos();
@@ -203,8 +233,7 @@
 
     function loadTodos() {
         todoList.innerHTML = '';
-        const todos = getTodos();
-        todos.forEach((text, index) => {
+        getTodos().forEach((text, index) => {
             const li = document.createElement('li');
             li.innerHTML = `<span>${text}</span><button class="delete-btn" onclick="deleteTodo(${index})">삭제</button>`;
             todoList.appendChild(li);
@@ -218,7 +247,8 @@
         loadTodos();
     }
 
-    init();
+    // 엔터키 지원
+    input.onkeypress = (e) => { if (e.key === 'Enter') document.getElementById('add-btn').click(); };
 </script>
 
 </body>
